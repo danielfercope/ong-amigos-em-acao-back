@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <style>
+         body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+         }
+
+         h3 {
+            text-align: center;
+         }
+
+         form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+         }
+
+         label {
+            font-weight: bold;
+         }
+
+         input[type="text"],
+         textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+         }
+
+         input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+         }
+
+         input[type="submit"]:hover {
+            background-color: #555;
+         }
+
+         .alert {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f44336;
+            color: white;
+            font-weight: bold;
+         }
+      </style>
+   </head>
+
+   <body>
+
+      <h3>Gestores - Exemplo de Flask SQLAlchemy</h3>
+      <hr/>
+
+      {%- for category, message in get_flashed_messages(with_categories = true) %}
+      <div class = "alert">
+         {{ message }}
+      </div>
+      {%- endfor %}
+
+      <form action = "{{ request.path }}" method = "post">
+         <label for = "nome">Nome</label><br>
+         <input type = "text" name = "nome" placeholder = "Nome" /><br>
+         <label for = "email">Email</label><br>
+         <textarea name = "email" placeholder = "Email"></textarea><br>
+         <label for = "pin">Pin</label><br>
+         <input type = "text" name = "pin" placeholder = "pin" /><br>
+         <input type = "submit" value = "Submit" />
+      </form>
+
+   </body>
+</html>
