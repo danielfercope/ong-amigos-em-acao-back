@@ -1,0 +1,41 @@
+import cursor
+import flask
+import mysql.connector
+
+conexao = mysql.connector.connect(
+    host = 'localhost',
+    user = 'root',
+    password= 'admin123',
+    database = 'banco',
+)
+
+cursor = conexao.cursor()
+
+#READ
+# comando = f' SELECT * FROM evento '
+# cursor.execute(comando)
+# resultado = cursor.fetchall()
+# print(resultado)
+
+#CREATE
+# nomeEvento = " Evento de teste (Python) "
+# dataEvento = " 2024-05-05 "
+# comando = f' INSERT INTO evento (nome_evento, data_evento) VALUES ("{nomeEvento}", "{dataEvento}")'
+# cursor.execute(comando)
+# conexao.commit()
+
+#UPDATE
+# nome_evento = "alteracao"
+# id_evento = 1
+# comando = f' UPDATE evento set nome_evento = "{nome_evento}" WHERE id_evento = "{id_evento}" '
+# cursor.execute(comando)
+# conexao.commit()
+
+#DELETE
+# id_evento = 1
+# comando = f' DELETE FROM evento WHERE id_evento = "{id_evento}" '
+# cursor.execute(comando)
+# conexao.commit()
+
+cursor.close()
+conexao.close()
