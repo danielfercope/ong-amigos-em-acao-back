@@ -21,7 +21,7 @@ def conectar_bd():
             password='',
             database='banco'
         )
-        print("Conexão ao banco de dados MySQL bem-sucedida")
+        print("Conexão ao banco de dados MySQL bem-sucedida (teste daniel git)")
         return conexao
     except Error as e:
         print(f"Erro ao conectar ao banco de dados: {e}")
