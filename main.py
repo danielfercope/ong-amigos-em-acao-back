@@ -2,11 +2,15 @@ from flask import Flask, request, jsonify
 import mysql.connector
 from flask_cors import CORS
 from mysql.connector import Error
+import os
+import base64
 
 app = Flask(__name__)
 CORS(app)
 
+
 app.config['UPLOAD_FOLDER'] = 'uploads'
+
 
 # Função para conectar ao banco de dados
 def conectar_bd():
@@ -14,8 +18,8 @@ def conectar_bd():
         conexao = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='',
-            database='usuarioTradicional'
+            password='admin123',
+            database='banco'
         )
         print("Conexão ao banco de dados MySQL bem-sucedida")
         return conexao
@@ -23,113 +27,97 @@ def conectar_bd():
         print(f"Erro ao conectar ao banco de dados: {e}")
         return None
 
-@app.route('/usuarioTradicional', methods=['POST'])
-def criar_usuarioTradicional():
-
+# Rota para criar um novo evento
+@app.route('/evento-post', methods=['POST'])
+def criar_evento():
     conexao = conectar_bd()
     if not conexao:
         return jsonify({'error': 'Erro ao conectar ao banco de dados'}), 500
 
-    data = request.get_json()
-    userName = data.get('userName')
-    userPhone = data.get('userPhone')
-    userNeeds = data.get('userNeeds')
-    userFamilyDescription = data.get('userFamilyDescription')
+    nome_evento = request.form.get('nome_evento')
+    data_evento = request.form.get('data_evento')
+    imagem_evento = request.files['imagem_evento']
 
-
-    if not (userName and userPhone and userNeeds and userFamilyDescription):
-        return jsonify({'error': 'Todos os campos são obrigatórios'}), 400
+    # Verifica se todos os campos necessários foram enviados
+    if not (nome_evento and data_evento and imagem_evento):
+        return jsonify({'error': 'Todos os campos são obrigatórios!'}), 400
 
     try:
         cursor = conexao.cursor()
-        cursor.execute(
-            "INSERT INTO tradicionalUser (userName, userPhone, userNeeds, userFamilyDescription) VALUES (%s, %s, %s, %s)",
-            (userName, userPhone, userNeeds, userFamilyDescription)
-        )
+        imagem_bytes = imagem_evento.read()
+        imagem_base64 = base64.b64encode(imagem_bytes).decode('utf-8')
+
+        cursor.execute("INSERT INTO evento (nome_evento, data_evento, imagem_evento) VALUES (%s, %s, %s)", (nome_evento, data_evento, imagem_base64))
         conexao.commit()
         cursor.close()
         conexao.close()
-        return jsonify({'message': 'Usuario criado com sucesso!'}), 201
-    except Error as e:
-        print(f"Erro ao criar usuario: {e}")
-        return jsonify({'error': 'Erro ao criar usuario'}), 500
 
-@app.route('/usuarioTradicional', methods=['GET'])
-def visualizar_usuarioTradicional():
+        return jsonify({'message': 'Evento criado com sucesso!'}), 201
+    except Error as e:
+        print(f"Erro ao criar evento: {e}")
+        return jsonify({'error': 'Erro ao criar evento'}), 500
+
+@app.route('/evento-get', methods=['GET'])
+def obter_eventos():
     conexao = conectar_bd()
     if not conexao:
         return jsonify({'error': 'Erro ao conectar ao banco de dados'}), 500
 
     try:
         cursor = conexao.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM tradicionalUser")
-        tradicionalUser = cursor.fetchall()
+        cursor.execute("SELECT * FROM evento")
+        eventos = cursor.fetchall()
         cursor.close()
         conexao.close()
-        return jsonify(tradicionalUser), 200
+        return jsonify(eventos), 200
     except Error as e:
-        print(f"Erro ao obter usuarios: {e}")
-        return jsonify({'error': 'Erro ao obter usuarios'}), 500
+        print(f"Erro ao obter eventos: {e}")
+        return jsonify({'error': 'Erro ao obter eventos'}), 500
 
+# Rota para atualizar um evento existente
+@app.route('/evento-update/<int:id>', methods=['PUT'])
+def atualizar_evento(id):
+    conexao = conectar_bd()
+    if not conexao:
+        return jsonify({'error': 'Erro ao conectar ao banco de dados'}), 500
 
-@app.route('/usuarioTradicional/<int:userId>', methods=['DELETE'])
-def deletar_usuarioTradicional(userId):
+    nome_evento = request.form.get('nome_evento')
+    data_evento = request.form.get('data_evento')
+
+    if not (nome_evento and data_evento):
+        return jsonify({'error': 'Todos os campos são obrigatórios!'}), 400
+
+    try:
+        cursor = conexao.cursor()
+        cursor.execute("UPDATE evento SET nome_evento = %s, data_evento = %s WHERE idEvento = %s", (nome_evento, data_evento, id))
+        conexao.commit()
+        cursor.close()
+        conexao.close()
+
+        return jsonify({'message': 'Evento atualizado com sucesso!'}), 200
+    except Error as e:
+        print(f"Erro ao atualizar evento: {e}")
+        return jsonify({'error': 'Erro ao atualizar evento'}), 500
+
+@app.route('/evento-delete/<int:id>', methods=['DELETE'])
+def deletar_evento(id):
     conexao = conectar_bd()
     if not conexao:
         return jsonify({'error': 'Erro ao conectar ao banco de dados'}), 500
 
     try:
         cursor = conexao.cursor()
-        cursor.execute("DELETE FROM tradicionalUser WHERE userId = %s", (userId,))
+
+        # Exclui o evento do banco de dados
+        cursor.execute("DELETE FROM evento WHERE idEvento = %s", (id,))
         conexao.commit()
         cursor.close()
         conexao.close()
-        return jsonify("usuario deletado com sucesso"), 200
+
+        return jsonify({'message': 'Evento excluído com sucesso!'}), 200
     except Error as e:
-        print(f"Erro ao obter usuarios: {e}")
-        return jsonify({'error': 'Erro ao obter usuarios'}), 500
+        print(f"Erro ao excluir evento: {e}")
+        return jsonify({'error': 'Erro ao excluir evento'}), 500
 
-@app.route('/usuarioTradicional/<int:userId>', methods=['PUT'])
-def editar_usuarioTradicional(userId):
-    conexao = conectar_bd()
-    if not conexao:
-        return jsonify({'error': 'Erro ao conectar ao banco de dados'}), 500
-
-    data = request.get_json()
-    userName = data.get('userName')
-    userPhone = data.get('userPhone')
-    userNeeds = data.get('userNeeds')
-    userFamilyDescription = data.get('userFamilyDescription')
-
-    query = "UPDATE tradicionalUser SET"
-    if userName:
-        query += ' userName = "' + userName + '",'
-    if userPhone:
-        query += ' userPhone = "' + userPhone + '",'
-    if userNeeds:
-        query += ' userNeeds = "' + userNeeds + '",'
-    if userFamilyDescription:
-        query += ' userFamilyDescription = "' + userFamilyDescription + '",'
-
-    # Remove the last comma
-    if query.endswith(','):
-        query = query[:-1]
-
-    query += " WHERE userId = "
-    query += str(userId)
-    print(query)
-
-    try:
-        cursor = conexao.cursor()
-        cursor.execute(query)
-        conexao.commit()
-        cursor.close()
-        conexao.close()
-        return jsonify("usuario editado com sucesso"), 200
-    except Error as e:
-        print(f"Erro ao obter usuarios: {e}")
-        return jsonify({'error': 'Erro ao obter usuarios'}), 500
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
