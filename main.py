@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import mysql.connector
 from flask_cors import CORS
 from mysql.connector import Error
+import os
 import base64
 
 app = Flask(__name__)
@@ -120,3 +121,4 @@ def deletar_evento(id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+

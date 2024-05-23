@@ -1,0 +1,15 @@
+.menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+}
+
+.menu-item {
+  margin: 0 10px; 
+}
+
+.login {
+  margin-right: 20px;
+  justify-content: space-between;
+}
