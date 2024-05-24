@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adicionar Gestor</title>
+    <link rel="stylesheet" type="text/css" href="static/style.css">
+    <script src="js/script.js" defer></script>
+</head>
+<body>
+    <h1>Adicionar Novo Gestor</h1>
+    <form onsubmit="addGestor(event)">
+        <label for="nomeGestor">Nome:</label>
+        <input type="text" id="nomeGestor" name="nomeGestor">
+        <label for="emailGestor">Email:</label>
+        <input type="email" id="emailGestor" name="emailGestor">
+        <label for="pinGestor">Pin:</label>
+        <input type="text" id="pinGestor" name="pinGestor">
+        <input type="submit" value="Adicionar">
+    </form>
+
+    <script>
+        function fetchGestores() {
+            fetch('http://localhost:5000/gestor-get')
+                .then(response => response.json())
+                .then(data => {
+                    let tableBody = document.getElementById('gestores-table-body');
+                    tableBody.innerHTML = '';
+                    data.forEach(gestor => {
+                        let row = `<tr>
+                            <td>${gestor.idGestor}</td>
+                            <td>${gestor.nomeGestor}</td>
+                            <td>${gestor.emailGestor}</td>
+                            <td>${gestor.pinGestor}</td>
+                            <td>
+                                <a href="edit_gestor.html?id=${gestor.idGestor}">Editar</a>
+                                <a href="#" onclick="deleteGestor(${gestor.idGestor})">Excluir</a>
+                            </td>
+                        </tr>`;
+                        tableBody.innerHTML += row;
+                    });
+                })
+                .catch(error => console.error('Erro:', error));
+        }
+
+        function deleteGestor(id) {
+            fetch(`http://localhost:5000/gestor-delete/${id}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    fetchGestores();
+                })
+                .catch(error => console.error('Erro:', error));
+        }
+
+        function addGestor(event) {
+            event.preventDefault();
+            let nomeGestor = document.getElementById('nomeGestor').value;
+            let emailGestor = document.getElementById('emailGestor').value;
+            let pinGestor = document.getElementById('pinGestor').value;
+
+            fetch('http://127.0.0.1:5000/gestor-post', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `nomeGestor=${nomeGestor}&emailGestor=${emailGestor}&pinGestor=${pinGestor}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                window.location.href = 'index.html';
+            })
+            .catch(error => console.error('Erro:', error));
+        }
+
+        function getGestorDetails(id) {
+            fetch(`http://127.0.0.1:5000/gestor-get/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('nomeGestor').value = data.nomeGestor;
+                    document.getElementById('emailGestor').value = data.emailGestor;
+                    document.getElementById('pinGestor').value = data.pinGestor;
+                })
+                .catch(error => console.error('Erro:', error));
+        }
+
+        function updateGestor(event) {
+            event.preventDefault();
+            let idGestor = new URLSearchParams(window.location.search).get('id');
+            let nomeGestor = document.getElementById('nomeGestor').value;
+            let emailGestor = document.getElementById('emailGestor').value;
+            let pinGestor = document.getElementById('pinGestor').value;
+
+            fetch(`http://127.0.0.1:5000/gestor-update/${idGestor}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `nomeGestor=${nomeGestor}&emailGestor=${emailGestor}&pinGestor=${pinGestor}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                window.location.href = 'index.html';
+            })
+            .catch(error => console.error('Erro:', error));
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchGestores);
+
+    </script>
+    
+</body>
+</html>
