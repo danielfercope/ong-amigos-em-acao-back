@@ -11,15 +11,15 @@
         <div class="form-container">
             <h1>Procuro Ajuda</h1>
             <p class="create_text">Seus dados não serão compartilhados com ninguém</p>
-            <form>
-                <label for="name">Nome (Social)</label>
-                <input name="name" type="text" placeholder="Digite seu nome">
-                <label for="telefone">Telefone</label>
-                <input name="e-mail" type="text" placeholder="Digite seu telefone">
-                <label for="Descrição">Descreva sua família</label>
-                <input name="Descrição" type="text" placeholder="2 adultos e 1 criança...">
-                <label for="necessidade">Necessidade</label>
-                <textarea name="necessidade" type="text" placeholder="Digite o que precisa"></textarea>
+            <form id="helpForm">
+                <label for="userName">Nome (Social)</label>
+                <input id="userName" name="userName" type="text" placeholder="Digite seu nome" required>
+                <label for="userPhone">Telefone</label>
+                <input id="userPhone" name="userPhone" type="text" placeholder="Digite seu telefone" required>
+                <label for="userFamilyDescription">Descreva sua família</label>
+                <input id="userFamilyDescription" name="userFamilyDescription" type="text" placeholder="2 adultos e 1 criança..." required>
+                <label for="userNeeds">Necessidade</label>
+                <textarea id="userNeeds" name="userNeeds" type="text" placeholder="Digite o que precisa" required></textarea>
 
                 <button class="create" type="submit">Enviar</button>
             </form>
@@ -27,8 +27,42 @@
         <div class="welcome-container">
             <h2>Estamos contigo nessa!</h2>
             <p>Do que você precisa? </p>
-           
         </div>
     </div>
+
+    <script>
+        document.getElementById('helpForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = {
+                userName: document.getElementById('userName').value,
+                userPhone: document.getElementById('userPhone').value,
+                userFamilyDescription: document.getElementById('userFamilyDescription').value,
+                userNeeds: document.getElementById('userNeeds').value
+            };
+
+            fetch('http://localhost:5000/usuarioTradicional', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Erro: ' + data.error);
+                } else {
+                    alert('Usuário criado com sucesso!');
+                    
+                    document.getElementById('helpForm').reset();
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao enviar o formulário:', error);
+                alert('Erro ao enviar o formulário. Tente novamente.');
+            });
+        });
+    </script>
 </body>
 </html>
