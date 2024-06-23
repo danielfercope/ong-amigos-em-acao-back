@@ -65,7 +65,7 @@ def visualizar_usuarios():
 
     try:
         cursor = conexao.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM createAccount") #Tirar o view Hash
+        cursor.execute("SELECT createEmail, createName, createId FROM createAccount")
         createAccount = cursor.fetchall()
         cursor.close()
         conexao.close()
