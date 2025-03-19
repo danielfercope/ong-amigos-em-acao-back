@@ -1,7 +1,5 @@
-import base64
-
+from db_conector import conectar_bd
 from flask import Flask, request, jsonify, render_template
-import mysql.connector
 from mysql.connector import Error
 from flask_cors import CORS
 
@@ -9,21 +7,6 @@ app = Flask(__name__)
 CORS(app)
 
 app.config['UPLOAD_FOLDER'] = 'uploads'
-
-
-def conectar_bd():
-    try:
-        conexao = mysql.connector.connect(
-            host='localhost',
-            user='root',
-            password='admin123',
-            database='N2_BancoDados'
-        )
-        print("Conexão ao banco de dados MySQL bem-sucedida")
-        return conexao
-    except Error as e:
-        print(f"Erro ao conectar ao banco de dados: {e}")
-        return None
 
 
 # CRUD DOS GESTORES
@@ -718,4 +701,4 @@ def validar_gestor():
         return jsonify({'error': 'Erro ao validar usuário'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
