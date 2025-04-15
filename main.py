@@ -8,8 +8,6 @@ CORS(app)
 
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
-
-# CRUD DOS GESTORES
 @app.route('/listar-gestores')
 def index():
     conexao = conectar_bd()
@@ -393,7 +391,7 @@ def listar_voluntario():
         voluntarios = cursor.fetchall()
         cursor.close()
         conexao.close()
-        return render_template('index.html', voluntarios=voluntarios)
+        return voluntarios
     except Error as e:
         print(f"Erro ao obter voluntarios: {e}")
         return jsonify({'error': 'Erro ao obter voluntarios'}), 500
